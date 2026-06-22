@@ -1,6 +1,7 @@
 import { Link } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, Button, Pressable, Switch, Text, } from "react-native";
+import { ActivityIndicator, Button, FlatList, Pressable, Switch, Text, } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context"
 
 export default function Index() {
   const [isEnabled, setIsEnabled] = useState(false)
@@ -9,7 +10,7 @@ export default function Index() {
     return <Text>hello world this is my first project</Text>
   }
 
-  //pressable
+  //Pressable
   const renderPressable = () => {
 
     return <Pressable onPress={() => alert("Button pressed")} style={{
@@ -26,33 +27,57 @@ export default function Index() {
     </Pressable>
   }
 
-  //native button 
-  const renderButton = () =>{
-    return <Button title="Login" onPress={() => alert("Button pressed")}/>
+  //Native button 
+  const renderButton = () => {
+    return <Button title="Login" onPress={() => alert("Button pressed")} />
 
   }
 
-  //activity indicator
+  //Activity indicator
   //loading state , fetching api data 
   //uploding file etc
-  const renderActivityIndicator = () =>{
-    return <ActivityIndicator size={"large"}/>
+  const renderActivityIndicator = () => {
+    return <ActivityIndicator size={"large"} />
   }
 
-  //switch 
-  const renderSwitch = () =>{
-    return <Switch value={isEnabled} onValueChange={setIsEnabled}/>
+  //Switch 
+  const renderSwitch = () => {
+    return <Switch value={isEnabled} onValueChange={setIsEnabled} />
   }
 
-  //LInk
-  const renderLink = () =>{
+  //Link
+  const renderLink = () => {
     return <Link href="/profile">
-    <Text>go to profile</Text>
-     </Link>
+      <Text>go to profile</Text>
+    </Link>
+
+    //Flastlist
+    //for eg: users.map((user)=> <span key={user.id}> {user.name})
+    //Flast for big data ( only fetch visible data)
+    // map for small data 4 5 not big data 
   }
+
+  //FlatList
+  const renderFlatList = () => {
+    return (
+      <FlatList
+        data={["React", "Next.js", "React Native"]}
+        keyExtractor={(item) => item}
+        renderItem={({ item }) => (
+          <Text style={{ fontSize: 24, marginBottom: 10 }}>
+            {item}
+          </Text>
+        )}
+        contentContainerStyle={{
+          padding: 20,
+        }}
+      />
+    )
+  }
+
   return (
-    <>
-      {renderLink()}
-    </>
+    <SafeAreaView style={{ flex: 1 }}>
+      {renderFlatList()}
+    </SafeAreaView>
   );
 }

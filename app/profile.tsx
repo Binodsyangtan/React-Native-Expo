@@ -1,14 +1,15 @@
 import { View, Text } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context";
 
 
 const ProfileScreen = () =>{
     return (
-    <View>
+    <SafeAreaView>
         <Text> Profile screen</Text>
-    </View>
+    </SafeAreaView>
     
 )
 }
 
 
-export default ProfileScreen
+export default ProfileScreen;
