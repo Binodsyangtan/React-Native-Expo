@@ -1,10 +1,12 @@
 import { Link } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, Button, FlatList, Pressable, Switch, Text, } from "react-native";
+import { ActivityIndicator, Button, FlatList, Pressable, ScrollView, Switch, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context"
+import { data } from "@/constants"
 
 export default function Index() {
   const [isEnabled, setIsEnabled] = useState(false)
+
 
   const renderText = () => {
     return <Text>hello world this is my first project</Text>
@@ -75,9 +77,20 @@ export default function Index() {
     )
   }
 
+
+  const renderScrollView = () => {
+    return <ScrollView> {data.map((item, index) => (
+      <View>
+
+        <Text style={{ marginTop: 25, padding: 16 }}>{item}</Text>
+      </View>
+    ))}
+    </ScrollView>
+  }
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      {renderFlatList()}
+      {renderScrollView()}
     </SafeAreaView>
   );
 }
