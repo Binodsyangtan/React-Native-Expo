@@ -79,7 +79,7 @@ export default function Index() {
 
 
   const renderScrollView = () => {
-    return <ScrollView> {data.map((item, index) => (
+    return <ScrollView>{data.map((item, index) => (
       <View>
 
         <Text style={{ marginTop: 25, padding: 16 }}>{item}</Text>
