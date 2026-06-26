@@ -1,5 +1,9 @@
+import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   StyleSheet,
   Text,
   TextInput,
@@ -9,7 +13,34 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SignUpScreen() {
+  const [email, setEmail] = useState("");
+  const [password, setpassword] = useState("");
+  const [isloading, setIsLoading] = useState(false);
+  const { signUp } = useAuth();
+
   const router = useRouter();
+
+  useEffect(() => {
+    router.push("/(auth)/onboarding");
+  }, []);
+
+  const handleSignup = async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Please fill in all fields");
+    }
+    if (password.length < 3) {
+      Alert.alert("Error", "Password must be at least 3 characters");
+    }
+
+    setIsLoading(true);
+    try {
+      await signUp(email, password);
+    } catch (error) {
+      Alert.alert("error", "Failed to sign up. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <SafeAreaView edges={["top", "bottom"]} style={styles.container}>
       <View style={styles.content}>
@@ -21,6 +52,8 @@ export default function SignUpScreen() {
             placeholderTextColor={"#999"}
             keyboardType="email-address"
             autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
             style={styles.input}
           />
           <TextInput
@@ -29,10 +62,16 @@ export default function SignUpScreen() {
             autoComplete="password"
             secureTextEntry
             autoCapitalize="none"
+            value={password}
+            onChangeText={setpassword}
             style={styles.input}
           />
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Sign Up</Text>
+          <TouchableOpacity style={styles.button} onPress={handleSignup}>
+            {isloading ? (
+              <ActivityIndicator />
+            ) : (
+              <Text style={styles.buttonText}>Sign Up</Text>
+            )}
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.linkButton}
