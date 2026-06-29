@@ -1,13 +1,14 @@
+import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -27,17 +28,45 @@ export default function SignUpScreen() {
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ["images"],
-        allowsEditing:true,
-        aspect:[1,1],
-        quality:0.8,
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
     });
-    if(!result.canceled && result.assets[0]){
-        setProfileImage(result.assets[0].uri)
-
+    if (!result.canceled && result.assets[0]) {
+      setProfileImage(result.assets[0].uri);
     }
   };
-  const handleComplete = () => {};
+
+  const takePhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission needed",
+        "We need camera permissions to take a photo",
+      );
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+    if (!result.canceled && result.assets[0]) {
+      setProfileImage(result.assets[0].uri);
+    }
+
+  }
+
+  const showImagePicker = () => {
+    Alert.alert("Select profile image", "Choose an option", [
+      { text: "camera", onPress: takePhoto },
+      { text: "Photo Library", onPress: pickImage },
+      { text: "Cancel", style: "cancel" }
+    ])
+
+  }
+  const handleComplete = () => { };
   return (
     <SafeAreaView edges={["top", "bottom"]} style={styles.container}>
       <View style={styles.content}>
@@ -49,9 +78,17 @@ export default function SignUpScreen() {
         </View>
         <View style={styles.form}>
           <TouchableOpacity style={styles.imageContainer} onPress={pickImage}>
-            <View style={styles.placeholderImage}>
-              <Text style={styles.placeholderText}>+</Text>
-            </View>
+            {profileImage ? (
+              <Image
+                source={{ uri: profileImage }}
+                style={styles.profileImage}
+              />
+            ) : (
+              <View style={styles.placeholderImage}>
+                <Text style={styles.placeholderText}>+</Text>
+              </View>
+            )}
+
             <View style={styles.editBadge}>
               <Text style={styles.editText}>Edit</Text>
             </View>
@@ -116,6 +153,12 @@ const styles = StyleSheet.create({
   imageContainer: {
     marginBottom: 32,
     position: "relative",
+  },
+  profileImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: "#f5f5f5",
   },
   placeholderImage: {
     width: 120,
