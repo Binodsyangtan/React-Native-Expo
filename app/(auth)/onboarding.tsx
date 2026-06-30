@@ -1,5 +1,9 @@
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/lib/supabase/client";
+import { uploadProfileImage } from "@/lib/supabase/storage";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -17,6 +21,8 @@ export default function SignUpScreen() {
   const [username, setUserName] = useState("");
   const [isloading, setIsloading] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const { user, updateUser } = useAuth();
+  const router = useRouter();
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -55,18 +61,77 @@ export default function SignUpScreen() {
     if (!result.canceled && result.assets[0]) {
       setProfileImage(result.assets[0].uri);
     }
-
-  }
+  };
 
   const showImagePicker = () => {
     Alert.alert("Select profile image", "Choose an option", [
       { text: "camera", onPress: takePhoto },
       { text: "Photo Library", onPress: pickImage },
-      { text: "Cancel", style: "cancel" }
-    ])
+      { text: "Cancel", style: "cancel" },
+    ]);
+  };
+  const handleComplete = async () => {
+    if (!name || !username) {
+      Alert.alert("Error", "Please fill in all fields");
+    }
+    if (username.length < 3) {
+      Alert.alert("Error", "Username must be at least 3 characters");
+    }
 
-  }
-  const handleComplete = () => { };
+    setIsloading(true);
+    try {
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+      //Check if username exists
+      const { data: existingUs } = await supabase
+        .from("Pofile")
+        .select("id")
+        .eq("username", username)
+        .neq("id", user.id)
+        .single();
+
+      if (existingUs) {
+        Alert.alert(
+          "Error",
+          "This username is already taken. Please choose another one.",
+        );
+        setIsloading(false);
+        return;
+      }
+
+      //Upload proile image
+
+      let profileImageUrl: string | undefined;
+      if (profileImage) {
+        try {
+          profileImageUrl = await uploadProfileImage(user.id, profileImage);
+        } catch (error) {
+          console.error("Error uploading profile image:", error);
+          Alert.alert(
+            "Warning",
+            "Faild to upload profile image. Continuing without image",
+          );
+        }
+      }
+
+      //update profile
+      await updateUser({
+        name,
+        username,
+        profileImage: profileImageUrl,
+        onboardingCompleted: true,
+      });
+      router.replace("/(tabs)")
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        "Failed to complete the onboarding. Please try again",
+      );
+    } finally {
+      setIsloading(false);
+    }
+  };
   return (
     <SafeAreaView edges={["top", "bottom"]} style={styles.container}>
       <View style={styles.content}>
